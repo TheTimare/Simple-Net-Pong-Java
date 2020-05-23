@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 public class PongPanel extends JPanel implements ActionListener {
     private JFrame frame;
@@ -20,6 +21,9 @@ public class PongPanel extends JPanel implements ActionListener {
 
     private Rectangle pl1;
     private Rectangle pl2;
+
+    private int pl1Points;
+    private int pl2Points;
 
     private long prevFrameTime;
 
@@ -34,11 +38,19 @@ public class PongPanel extends JPanel implements ActionListener {
         speed = new Speed(START_BALL_SPEED, START_BALL_SPEED);
 
         pl1 = new Rectangle();
-        pl1.width = width / 40;
+        pl1.width = width / 80;
         pl1.x = width * 19 / 20;
         pl1.height = height / 10;
         pl1.y = height / 2 - pl1.height/2;
+
         pl2 = new Rectangle();
+        pl2.width = width / 80;
+        pl2.x = width / 20;
+        pl2.height = height / 10;
+        pl2.y = height / 2 - pl1.height/2;
+
+        pl1Points = 0;
+        pl2Points = 0;
 
         prevFrameTime = System.currentTimeMillis();
         setDoubleBuffered(true);
@@ -61,6 +73,44 @@ public class PongPanel extends JPanel implements ActionListener {
                 }
             }
         });
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                moveFigures(e);
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                moveFigures(e);
+            }
+
+            void moveFigures(KeyEvent e) {
+                int shift1 = pl1.height / 2;
+                int shift2 = pl2.height / 2;
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_UP:
+                        if (pl1.y - shift1 - KEY_SENSITIVITY > 0) {
+                            pl1.y -= KEY_SENSITIVITY;
+                        }
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        if (pl1.y + shift1 + KEY_SENSITIVITY < height) {
+                            pl1.y += KEY_SENSITIVITY;
+                        }
+                        break;
+                    case KeyEvent.VK_W:
+                        if (pl2.y - shift2 - KEY_SENSITIVITY > 0) {
+                            pl2.y -= KEY_SENSITIVITY;
+                        }
+                        break;
+                    case KeyEvent.VK_S:
+                        if (pl2.y + shift2 + KEY_SENSITIVITY < height) {
+                            pl2.y += KEY_SENSITIVITY;
+                        }
+                        break;
+                }
+            }
+        });
 
         timer.start();
     }
@@ -78,13 +128,24 @@ public class PongPanel extends JPanel implements ActionListener {
         g2d.setColor(BACKGROUND_COLOR);
         g2d.fillRect(0, 0, width, height);
 
+        // paint info and layout
+        g2d.setColor(Color.decode("#F7F7F7"));
+        g2d.fillRect(width/2, 0, width, height);
+
+        g2d.setFont(new Font("Courier", Font.BOLD, 75));
+        g2d.drawString(String.valueOf(pl2Points), width/5, height/2);
+        g2d.setColor(BACKGROUND_COLOR);
+        g2d.drawString(String.valueOf(pl1Points), width*7/10, height/2);
+
         // paint ball
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(Color.ORANGE);
         g2d.fillOval((int)ball.x, (int)ball.y, ball.diameter, ball.diameter);
 
         //paint platform
         g2d.setColor(Color.RED);
         g2d.fill(pl1);
+        g2d.setColor(Color.BLUE);
+        g2d.fill(pl2);
     }
 
     @Override
@@ -105,26 +166,31 @@ public class PongPanel extends JPanel implements ActionListener {
         float newX = ball.x + relativeSpeedX;
         float newY = ball.y + relativeSpeedY;
 
-        if (newX + ball.diameter > width || newX < 0) {
-            newX -= relativeSpeedX;
-            speed.x = -speed.x;
+        if (newX + ball.diameter > width) {
+            pl2Points++;
+            ball.x = width / 2f;
+            ball.y = height / 2f;
+            speed.x = speed.y = START_BALL_SPEED;
+            return;
         }
+        if (newX < 0) {
+            pl1Points++;
+            ball.x = width / 2f;
+            ball.y = height / 2f;
+            speed.x = speed.y = START_BALL_SPEED;
+            return;
+        }
+
         if (newY + ball.diameter > height || newY  < 0) {
             newY -= relativeSpeedY;
             speed.y = -speed.y;
         }
 
-        Line2D ballLine = new Line2D.Float(ball.x, ball.y, newX + ball.diameter, newY + ball.diameter);
-
-        if (ballLine.intersectsLine(pl1.x, pl1.y, pl1.x + pl1.width, pl1.y)
-                || ballLine.intersectsLine(pl1.x, pl1.y + pl1.height, pl1.x + width, pl1.y + pl1.height)) {
-            newY -= relativeSpeedY;
-            speed.y = -speed.y;
-        }
-        if (ballLine.intersectsLine(pl1.x, pl1.y, pl1.x, pl1.y + pl1.height)
-                || ballLine.intersectsLine(pl1.x + pl1.width, pl1.y, pl1.x + width, pl1.y + pl1.height)) {
+        Rectangle ballRect = new Rectangle((int)newX, (int)newY, ball.diameter, ball.diameter);
+        if (ballRect.intersects(pl1) || ballRect.intersects(pl2)) {
             newX -= relativeSpeedX;
             speed.x = -speed.x;
+            speed.x = (speed.x < 0) ? speed.x - 0.5f : speed.x + 0.5f;
         }
 
         ball.x = newX;

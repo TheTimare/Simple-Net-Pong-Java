@@ -9,9 +9,11 @@ public final class Config {
 
     // 50 for 20fps, 33 for ~30fps, 16 for ~60fps
     public static final int MS_PER_FRAME = 16;
-    public static final int TARGET_MS = 33;
+    public static final int TARGET_MS = 33; // calculate speed for this value
 
     public static final float START_BALL_SPEED = 10;
+
+    public static final int KEY_SENSITIVITY = 25;
 
     public Config() {
         throw new IllegalArgumentException();
