@@ -19,7 +19,7 @@ public class PongPanel extends JPanel implements ActionListener {
 
     private long prevFrameTime;
 
-    Timer timer;
+    private Timer timer;
 
     public PongPanel(JFrame frame) {
         this.frame = frame;
@@ -83,12 +83,12 @@ public class PongPanel extends JPanel implements ActionListener {
             void moveFigures(KeyEvent e) {
                 Rectangle pl2 = field.getPl2();
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_W:
+                    case KEY_PL2_UP:
                         if (pl2.y - KEY_SENSITIVITY > 0) {
                             pl2.y -= KEY_SENSITIVITY;
                         }
                         break;
-                    case KeyEvent.VK_S:
+                    case KEY_PL2_DOWN:
                         if (pl2.y + pl2.height + KEY_SENSITIVITY < height) {
                             pl2.y += KEY_SENSITIVITY;
                         }
@@ -96,7 +96,7 @@ public class PongPanel extends JPanel implements ActionListener {
                 }
                 if (field.getLastLoser() == 2 && field.isOnPause()){
                     field.putBallToPlayer(pl2);
-                    if (e.getKeyCode() == KeyEvent.VK_E) {
+                    if (e.getKeyCode() == KEY_PL2_THROW) {
                         field.throwBall(pl2);
                     }
                 }

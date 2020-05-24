@@ -83,33 +83,6 @@ public class PongField {
         onPause = false;
     }
 
-    private Line2D formBallLine(float x, float y, float newX, float newY) {
-        if (x < newX) {
-            newX += ball.diameter;
-        }
-        if (y < newY) {
-            newY += ball.diameter;
-        }
-        return new Line2D.Float(x, y, newX, newY);
-    }
-
-    private boolean isNewBallIntersectPlayers(float newX, float newY) {
-        Line2D ballLineCenter = formBallLine(ball.x, ball.y, newX, newY);
-        if (ballLineCenter.intersects(pl1) || ballLineCenter.intersects(pl2)) {
-            return true;
-        }
-
-        Line2D ballLineDown = formBallLine(ball.x, ball.y - ball.diameter/2f
-                , newX, newY - ball.diameter/2f);
-        if (ballLineDown.intersects(pl1) || ballLineDown.intersects(pl2)) {
-            return true;
-        }
-
-        Line2D ballLineTop = formBallLine(ball.x, ball.y + ball.diameter/2f
-                , newX, newY + ball.diameter/2f);
-        return ballLineTop.intersects(pl1) || ballLineTop.intersects(pl2);
-    }
-
     // return time of the last frame
     public long moveBall(long prevFrameTime) {
         float deltaFrame = (System.currentTimeMillis() - prevFrameTime) / (float)TARGET_MS ;
@@ -157,15 +130,31 @@ public class PongField {
         return prevFrameTime;
     }
 
-    public void putBallToPlayer(Rectangle pl) {
-        if (ball.x > width / 2f){
-            ball.x = pl.x - ball.diameter - 1;
-        }
-        else {
-            ball.x = pl.x + pl.width + 1;
+    private boolean isNewBallIntersectPlayers(float newX, float newY) {
+        Line2D ballLineCenter = formBallLine(ball.x, ball.y, newX, newY);
+        if (ballLineCenter.intersects(pl1) || ballLineCenter.intersects(pl2)) {
+            return true;
         }
 
-        ball.y = pl.y + pl.height/2f - ball.diameter/2f;
+        Line2D ballLineDown = formBallLine(ball.x, ball.y - ball.diameter/2f
+                , newX, newY - ball.diameter/2f);
+        if (ballLineDown.intersects(pl1) || ballLineDown.intersects(pl2)) {
+            return true;
+        }
+
+        Line2D ballLineTop = formBallLine(ball.x, ball.y + ball.diameter/2f
+                , newX, newY + ball.diameter/2f);
+        return ballLineTop.intersects(pl1) || ballLineTop.intersects(pl2);
+    }
+
+    private Line2D formBallLine(float x, float y, float newX, float newY) {
+        if (x < newX) {
+            newX += ball.diameter;
+        }
+        if (y < newY) {
+            newY += ball.diameter;
+        }
+        return new Line2D.Float(x, y, newX, newY);
     }
 
     public void throwBall(Rectangle pl) {
@@ -176,5 +165,16 @@ public class PongField {
         speed.y = (speed.y == 0) ? speed.y + 1 : speed.y;
 
         unpause();
+    }
+
+    public void putBallToPlayer(Rectangle pl) {
+        if (ball.x > width / 2f){
+            ball.x = pl.x - ball.diameter - 1;
+        }
+        else {
+            ball.x = pl.x + pl.width + 1;
+        }
+
+        ball.y = pl.y + pl.height/2f - ball.diameter/2f;
     }
 }
