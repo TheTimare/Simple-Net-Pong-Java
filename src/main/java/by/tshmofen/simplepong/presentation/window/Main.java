@@ -1,21 +1,21 @@
 package by.tshmofen.simplepong.presentation.window;
 
+import by.tshmofen.simplepong.domain.AppTabs;
+import by.tshmofen.simplepong.presentation.graphics.MenuPanel;
 import by.tshmofen.simplepong.presentation.graphics.PongPanel;
 import static by.tshmofen.simplepong.domain.Config.*;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 
-public class MainPongFrame {
+public class Main {
     JFrame frame;
 
-    public MainPongFrame() {
+    public Main() {
         frame = new JFrame("Simple Net Pong");
     }
 
     public static void main(String[] args) {
-        MainPongFrame mainFrame = new MainPongFrame();
+        Main mainFrame = new Main();
         mainFrame.start();
     }
 
@@ -24,17 +24,12 @@ public class MainPongFrame {
         frame.setResizable(false); // forbid resizing
         frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setLocationRelativeTo(null); // set to the center of screen
-        // turn off the cursor
-        frame.setCursor( frame.getToolkit().createCustomCursor(
-                new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ),
-                new Point(),
-                null ) );
 
         frame.setVisible(true);
-        PongPanel pong = new PongPanel(frame);
-        frame.add(pong);
 
-
-        pong.startTheGame();
+        AppTabs.frame = frame;
+        AppTabs.pong = new PongPanel();
+        AppTabs.menu = new MenuPanel();
+        frame.setContentPane(AppTabs.menu);
     }
 }

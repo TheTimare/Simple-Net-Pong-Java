@@ -2,9 +2,6 @@ package by.tshmofen.simplepong.service;
 
 import by.tshmofen.simplepong.domain.geometry.Ball;
 import by.tshmofen.simplepong.domain.geometry.Speed;
-
-import javax.sound.sampled.Line;
-
 import static by.tshmofen.simplepong.domain.Config.*;
 
 import java.awt.*;
@@ -12,14 +9,14 @@ import java.awt.geom.Line2D;
 import java.util.Random;
 
 public class PongField {
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
 
-    private Ball ball;
-    private Speed speed;
+    private final Ball ball;
+    private final Speed speed;
 
-    private Rectangle pl1;
-    private Rectangle pl2;
+    private final Rectangle pl1;
+    private final Rectangle pl2;
 
     private int pl1Points;
     private int pl2Points;
@@ -31,25 +28,20 @@ public class PongField {
         this.width = width;
         this.height = height;
 
-        ball = new Ball((float)width/2, (float)height/2, 15);
+        ball = new Ball(width/2f, height/2f, 15);
         speed = new Speed(START_BALL_SPEED, START_BALL_SPEED);
 
         pl1 = new Rectangle();
         pl1.width = width / 80;
-        pl1.x = width * 19 / 20;
         pl1.height = height / 10;
-        pl1.y = height / 2 - pl1.height/2;
 
         pl2 = new Rectangle();
         pl2.width = width / 80;
-        pl2.x = width / 20;
         pl2.height = height / 10;
-        pl2.y = height / 2 - pl1.height/2;
 
-        pl1Points = 0;
-        pl2Points = 0;
+        reset();
 
-        onPause = false;
+        onPause = true;
     }
 
     public Ball getBall() {
@@ -69,10 +61,10 @@ public class PongField {
     public int getPl2Points() {
         return pl2Points;
     }
-
     public int getLastLoser() {
         return lastLoser;
     }
+
     public boolean isOnPause(){
         return onPause;
     }
@@ -81,6 +73,24 @@ public class PongField {
     }
     public void unpause() {
         onPause = false;
+    }
+    public void reset() {
+        pl1.x = width * 19 / 20;
+        pl1.y = height / 2 - pl1.height/2;
+        pl2.x = width / 20;
+        pl2.y = height / 2 - pl1.height/2;
+
+        pl1Points = 0;
+        pl2Points = 0;
+        lastLoser = 1;
+
+        ball.x = width/2f;
+        ball.y = height/2f;
+
+        speed.x = START_BALL_SPEED;
+        speed.y = START_BALL_SPEED;
+
+        pause();
     }
 
     // return time of the last frame

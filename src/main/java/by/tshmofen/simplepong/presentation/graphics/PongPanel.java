@@ -1,45 +1,41 @@
 package by.tshmofen.simplepong.presentation.graphics;
 
+import by.tshmofen.simplepong.domain.AppTabs;
 import by.tshmofen.simplepong.domain.geometry.Ball;
-import by.tshmofen.simplepong.domain.geometry.Speed;
 import by.tshmofen.simplepong.service.PongField;
 import static by.tshmofen.simplepong.domain.Config.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 
 public class PongPanel extends JPanel implements ActionListener {
-    private JFrame frame;
+    private final int width;
+    private final int height;
 
-    private int width;
-    private int height;
-
-    private PongField field;
+    private final PongField field;
 
     private long prevFrameTime;
 
-    private Timer timer;
+    private final Timer timer;
 
-    public PongPanel(JFrame frame) {
-        this.frame = frame;
-        width = frame.getContentPane().getWidth();
-        height = frame.getContentPane().getHeight();
+    public PongPanel() {
+        width = AppTabs.frame.getContentPane().getWidth();
+        height = AppTabs.frame.getContentPane().getHeight();
 
         field = new PongField(width, height);
+        // turn off the cursor
 
         prevFrameTime = System.currentTimeMillis();
         setDoubleBuffered(true);
 
         timer = new Timer(MS_PER_FRAME, this);
+        addListeners();
     }
 
-    public void startTheGame() {
-        if (timer.isRunning()) {
-            return;
-        }
-
-        frame.addMouseMotionListener(new MouseMotionAdapter() {
+    private void addListeners() {
+        this.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 Point mousePos = PongPanel.super.getMousePosition();
@@ -53,7 +49,7 @@ public class PongPanel extends JPanel implements ActionListener {
                 }
             }
         });
-        frame.addMouseListener(new MouseAdapter() {
+        this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (field.getLastLoser() == 1 && field.isOnPause()) {
@@ -68,19 +64,21 @@ public class PongPanel extends JPanel implements ActionListener {
                 }
             }
         });
-
-        frame.addKeyListener(new KeyAdapter() {
+        this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                moveFigures(e);
+                handleKeys(e);
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                moveFigures(e);
+                handleKeys(e);
             }
 
-            void moveFigures(KeyEvent e) {
+            void handleKeys(KeyEvent e) {
+                if (!timer.isRunning()) {
+                    return;
+                }
                 Rectangle pl2 = field.getPl2();
                 switch (e.getKeyCode()) {
                     case KEY_PL2_UP:
@@ -93,6 +91,10 @@ public class PongPanel extends JPanel implements ActionListener {
                             pl2.y += KEY_SENSITIVITY;
                         }
                         break;
+                    case KeyEvent.VK_ESCAPE:
+                        stopTheGame();
+                        AppTabs.frame.setContentPane(AppTabs.menu);
+                        AppTabs.frame.setVisible(true);
                 }
                 if (field.getLastLoser() == 2 && field.isOnPause()){
                     field.putBallToPlayer(pl2);
@@ -102,8 +104,29 @@ public class PongPanel extends JPanel implements ActionListener {
                 }
             }
         });
+    }
 
+    public void startTheGame() {
+        if (timer.isRunning()) {
+            return;
+        }
+
+        this.grabFocus();
+        AppTabs.frame.setCursor( AppTabs.frame.getToolkit().createCustomCursor(
+                new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ),
+                new Point(),
+                null ) );
         timer.start();
+        field.reset();
+    }
+
+    public void stopTheGame() {
+        if (!timer.isRunning()){
+            return;
+        }
+
+        AppTabs.frame.setCursor(Cursor.getDefaultCursor());
+        timer.stop();
     }
 
     @Override
