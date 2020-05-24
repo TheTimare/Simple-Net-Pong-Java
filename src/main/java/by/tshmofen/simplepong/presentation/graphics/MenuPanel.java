@@ -38,7 +38,7 @@ public class MenuPanel extends JPanel {
         for (int i = 0; i < buttons.size(); i++){
             JButton button = buttons.get(i);
             button.setBounds(width / 2 - menuWidth/2
-                    , height * (i + 2) / 12, menuWidth, height / 12);
+                    , height * (i + 2) / 12, menuWidth, height / 12 - 5);
             button.setBackground(Color.LIGHT_GRAY);
             button.setForeground(Color.DARK_GRAY);
             button.setFont(new Font("Courier", Font.BOLD, 22));
