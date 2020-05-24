@@ -15,8 +15,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Main mainFrame = new Main();
-        mainFrame.start();
+        Main main = new Main();
+        main.start();
     }
 
     public void start() {
