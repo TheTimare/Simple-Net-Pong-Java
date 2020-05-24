@@ -1,0 +1,150 @@
+package by.tshmofen.simplepong.service;
+
+import by.tshmofen.simplepong.domain.geometry.Ball;
+import by.tshmofen.simplepong.domain.geometry.Speed;
+import static by.tshmofen.simplepong.domain.Config.*;
+
+import java.awt.*;
+import java.util.Random;
+
+public class PongField {
+    private int width;
+    private int height;
+
+    private Ball ball;
+    private Speed speed;
+
+    private Rectangle pl1;
+    private Rectangle pl2;
+
+    private int pl1Points;
+    private int pl2Points;
+
+    private boolean onPause;
+    private int lastLoser;
+
+    public PongField(int width, int height) {
+        this.width = width;
+        this.height = height;
+
+        ball = new Ball((float)width/2, (float)height/2, 15);
+        speed = new Speed(START_BALL_SPEED, START_BALL_SPEED);
+
+        pl1 = new Rectangle();
+        pl1.width = width / 80;
+        pl1.x = width * 19 / 20;
+        pl1.height = height / 10;
+        pl1.y = height / 2 - pl1.height/2;
+
+        pl2 = new Rectangle();
+        pl2.width = width / 80;
+        pl2.x = width / 20;
+        pl2.height = height / 10;
+        pl2.y = height / 2 - pl1.height/2;
+
+        pl1Points = 0;
+        pl2Points = 0;
+
+        onPause = false;
+    }
+
+    public Ball getBall() {
+        return ball;
+    }
+
+    public Rectangle getPl1() {
+        return pl1;
+    }
+    public Rectangle getPl2() {
+        return pl2;
+    }
+
+    public int getPl1Points() {
+        return pl1Points;
+    }
+    public int getPl2Points() {
+        return pl2Points;
+    }
+
+    public int getLastLoser() {
+        return lastLoser;
+    }
+    public boolean isOnPause(){
+        return onPause;
+    }
+    public void pause() {
+        onPause = true;
+    }
+    public void unpause() {
+        onPause = false;
+    }
+
+    // return time of last frame
+    public long moveBall(long prevFrameTime) {
+        float deltaFrame = (System.currentTimeMillis() - prevFrameTime) / (float)TARGET_MS ;
+        prevFrameTime = System.currentTimeMillis();
+
+        if (onPause) { // wait before player throw the ball
+            return prevFrameTime;
+        }
+
+        float relativeSpeedX = speed.x * deltaFrame ,
+                relativeSpeedY = speed.y * deltaFrame;
+
+        float newX = ball.x + relativeSpeedX;
+        float newY = ball.y + relativeSpeedY;
+
+        if (newX + ball.diameter > width) {
+            pl2Points++;
+            lastLoser = 1;
+            putBallToPlayer(pl1);
+            pause();
+            return prevFrameTime;
+        }
+        if (newX < 0) {
+            pl1Points++;
+            lastLoser = 2;
+            putBallToPlayer(pl2);
+            pause();
+            return prevFrameTime;
+        }
+
+        if (newY + ball.diameter > height || newY  < 0) {
+            newY -= relativeSpeedY;
+            speed.y = -speed.y;
+        }
+
+        Rectangle ballRect = new Rectangle((int)newX, (int)newY, ball.diameter, ball.diameter);
+        if (ballRect.intersects(pl1) || ballRect.intersects(pl2)) {
+            newX -= relativeSpeedX;
+            speed.x = -speed.x;
+            speed.x = (speed.x < 0) ? speed.x - SPEED_INCREMENT  : speed.x + SPEED_INCREMENT;
+        }
+
+        ball.x = newX;
+        ball.y = newY;
+
+        return prevFrameTime;
+    }
+
+    public void putBallToPlayer(Rectangle pl) {
+        if (ball.x > width / 2f){
+            ball.x = pl.x - ball.diameter;
+        }
+        else {
+            ball.x = pl.x + pl.width;
+        }
+
+        ball.y = pl.y + pl.height/2f - ball.diameter/2f;
+    }
+
+    public void throwBall(Rectangle pl) {
+        putBallToPlayer(pl);
+
+        speed.x = (pl.x < width / 2) ? START_BALL_SPEED : -START_BALL_SPEED;
+        speed.y = new Random().nextInt() % (START_BALL_SPEED) - START_BALL_SPEED / 2;
+        speed.y = (speed.y == 0) ? speed.y + 1 : speed.y;
+
+        unpause();
+    }
+}

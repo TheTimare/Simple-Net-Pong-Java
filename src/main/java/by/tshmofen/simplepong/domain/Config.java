@@ -11,7 +11,8 @@ public final class Config {
     public static final int MS_PER_FRAME = 16;
     public static final int TARGET_MS = 33; // calculate speed for this value
 
-    public static final float START_BALL_SPEED = 10;
+    public static final float START_BALL_SPEED = 5;
+    public static final float SPEED_INCREMENT = 2;
 
     public static final int KEY_SENSITIVITY = 25;
 
