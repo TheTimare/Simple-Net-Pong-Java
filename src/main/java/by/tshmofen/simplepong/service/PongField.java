@@ -2,9 +2,13 @@ package by.tshmofen.simplepong.service;
 
 import by.tshmofen.simplepong.domain.geometry.Ball;
 import by.tshmofen.simplepong.domain.geometry.Speed;
+
+import javax.sound.sampled.Line;
+
 import static by.tshmofen.simplepong.domain.Config.*;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.util.Random;
 
 public class PongField {
@@ -79,7 +83,34 @@ public class PongField {
         onPause = false;
     }
 
-    // return time of last frame
+    private Line2D formBallLine(float x, float y, float newX, float newY) {
+        if (x < newX) {
+            newX += ball.diameter;
+        }
+        if (y < newY) {
+            newY += ball.diameter;
+        }
+        return new Line2D.Float(x, y, newX, newY);
+    }
+
+    private boolean isNewBallIntersectPlayers(float newX, float newY) {
+        Line2D ballLineCenter = formBallLine(ball.x, ball.y, newX, newY);
+        if (ballLineCenter.intersects(pl1) || ballLineCenter.intersects(pl2)) {
+            return true;
+        }
+
+        Line2D ballLineDown = formBallLine(ball.x, ball.y - ball.diameter/2f
+                , newX, newY - ball.diameter/2f);
+        if (ballLineDown.intersects(pl1) || ballLineDown.intersects(pl2)) {
+            return true;
+        }
+
+        Line2D ballLineTop = formBallLine(ball.x, ball.y + ball.diameter/2f
+                , newX, newY + ball.diameter/2f);
+        return ballLineTop.intersects(pl1) || ballLineTop.intersects(pl2);
+    }
+
+    // return time of the last frame
     public long moveBall(long prevFrameTime) {
         float deltaFrame = (System.currentTimeMillis() - prevFrameTime) / (float)TARGET_MS ;
         prevFrameTime = System.currentTimeMillis();
@@ -114,8 +145,7 @@ public class PongField {
             speed.y = -speed.y;
         }
 
-        Rectangle ballRect = new Rectangle((int)newX, (int)newY, ball.diameter, ball.diameter);
-        if (ballRect.intersects(pl1) || ballRect.intersects(pl2)) {
+        if (isNewBallIntersectPlayers(newX, newY)) {
             newX -= relativeSpeedX;
             speed.x = -speed.x;
             speed.x = (speed.x < 0) ? speed.x - SPEED_INCREMENT  : speed.x + SPEED_INCREMENT;
@@ -129,10 +159,10 @@ public class PongField {
 
     public void putBallToPlayer(Rectangle pl) {
         if (ball.x > width / 2f){
-            ball.x = pl.x - ball.diameter;
+            ball.x = pl.x - ball.diameter - 1;
         }
         else {
-            ball.x = pl.x + pl.width;
+            ball.x = pl.x + pl.width + 1;
         }
 
         ball.y = pl.y + pl.height/2f - ball.diameter/2f;
