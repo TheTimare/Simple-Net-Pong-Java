@@ -199,7 +199,7 @@ public class PongPanel extends JPanel implements ActionListener {
         field.reset();
     }
 
-    public void startTheMultiplayerGame(int port, JDialog dialog) throws Exception {
+    public void startTheMultiplayerGame(int port, JDialog dialog) {
         multiplayer = new MultiplayerFieldHandler(field, dialog, port);
         field.setRemotePlayer(2);
         isMultiplayer = true;
