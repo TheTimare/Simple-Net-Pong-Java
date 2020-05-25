@@ -7,6 +7,7 @@ import by.tshmofen.simplepong.presentation.graphics.StartNetPanel;
 
 import javax.swing.*;
 
+/*This class allows to switch between tabs of application*/
 public class AppTabs {
     public static JFrame frame;
     public static MenuPanel menu;

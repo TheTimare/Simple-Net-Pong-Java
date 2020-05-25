@@ -1,5 +1,7 @@
 package by.tshmofen.simplepong.domain.geometry;
 
+import static by.tshmofen.simplepong.domain.Config.PONG_BALL_DIAMETER;
+
 public class Ball {
     public float x;
     public float y;
@@ -8,7 +10,7 @@ public class Ball {
     public Ball() {
         x = 0;
         y = 0;
-        diameter = 0;
+        diameter = PONG_BALL_DIAMETER;
     }
 
     public Ball(float x, float y, int diameter){

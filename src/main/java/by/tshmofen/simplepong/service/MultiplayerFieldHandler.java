@@ -13,6 +13,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static by.tshmofen.simplepong.domain.Config.*;
+
 public class MultiplayerFieldHandler implements ActionListener {
     private final PongField field;
 
@@ -32,7 +34,7 @@ public class MultiplayerFieldHandler implements ActionListener {
         this.field = field;
         isServer = true;
         toThrowBallRemote = false;
-        timer = new Timer(20, this);
+        timer = new Timer(TARGET_PING, this);
         badConnection = true;
         Runnable listening = () -> {
             try {
@@ -62,7 +64,7 @@ public class MultiplayerFieldHandler implements ActionListener {
         in = new ObjectInputStream(connection.getInputStream());
 
         badConnection = false;
-        timer = new Timer(20, this);
+        timer = new Timer(TARGET_PING, this);
         timer.start();
     }
 

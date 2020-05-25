@@ -153,27 +153,27 @@ public class PongPanel extends JPanel implements ActionListener {
         );
 
         // paint background
-        g2d.setColor(BACKGROUND_COLOR);
+        g2d.setColor(PONG_LEFT_PART_COLOR);
         g2d.fillRect(0, 0, width, height);
 
-        // paint info and layout
-        g2d.setColor(Color.decode("#F7F7F7"));
+        // right part of field
+        g2d.setColor(PONG_RIGHT_PART_COLOR);
         g2d.fillRect(width/2, 0, width, height);
 
-        g2d.setFont(new Font("Courier", Font.BOLD, 75));
+        g2d.setFont(new Font(APP_FONT, Font.BOLD, 75));
         g2d.drawString(String.valueOf(field.getPl2Points()), width/5, height/2);
-        g2d.setColor(BACKGROUND_COLOR);
+        g2d.setColor(PONG_LEFT_PART_COLOR);
         g2d.drawString(String.valueOf(field.getPl1Points()), width*7/10, height/2);
 
         // paint ball
-        g2d.setColor(Color.ORANGE);
+        g2d.setColor(PONG_BALL_COLOR);
         Ball ball = field.getBall();
         g2d.fillOval((int)ball.x, (int)ball.y, ball.diameter, ball.diameter);
 
         //paint platform
-        g2d.setColor(Color.RED);
+        g2d.setColor(PONG_PLAYER1_COLOR);
         g2d.fill(field.getPl1());
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(PONG_PLAYER2_COLOR);
         g2d.fill(field.getPl2());
 
         this.requestFocusInWindow();
@@ -182,7 +182,6 @@ public class PongPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         prevFrameTime = field.moveBall(prevFrameTime);
-
         repaint();
     }
 
