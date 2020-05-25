@@ -44,6 +44,14 @@ public class PongPanel extends JPanel implements ActionListener {
                 if (!timer.isRunning()) {
                     return;
                 }
+                if (isMultiplayer && multiplayer.isBadConnection()){
+                    stopTheGame();
+                    JOptionPane.showMessageDialog(AppTabs.frame
+                            , "Bad connection. Returning to the menu.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    AppTabs.frame.setContentPane(AppTabs.menu);
+                    AppTabs.frame.setVisible(true);
+                }
                 if (field.getRemotePlayer() == 1){
                     movePlayer(2);
                 }
@@ -93,6 +101,12 @@ public class PongPanel extends JPanel implements ActionListener {
 
             @Override
             public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    stopTheGame();
+                    AppTabs.frame.setContentPane(AppTabs.menu);
+                    AppTabs.frame.setVisible(true);
+                    return;
+                }
                 if (!isMultiplayer) {
                     handleKeys(e);
                 }
@@ -114,10 +128,6 @@ public class PongPanel extends JPanel implements ActionListener {
                             pl2.y += KEY_SENSITIVITY;
                         }
                         break;
-                    case KeyEvent.VK_ESCAPE:
-                        stopTheGame();
-                        AppTabs.frame.setContentPane(AppTabs.menu);
-                        AppTabs.frame.setVisible(true);
                 }
                 if (field.getLastLoser() == 2 && field.isOnPause()){
                     field.putBallToPlayer(pl2);
@@ -129,44 +139,8 @@ public class PongPanel extends JPanel implements ActionListener {
         });
     }
 
-    public void startTheGame() {
-        if (timer.isRunning()) {
-            return;
-        }
-
-        this.grabFocus();
-        AppTabs.frame.setCursor( AppTabs.frame.getToolkit().createCustomCursor(
-                new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ),
-                new Point(),
-                null ) );
-        timer.start();
-        field.reset();
-    }
-
-    public void startTheMultiplayerGame(int port) throws Exception {
-        multiplayer = new MultiplayerFieldHandler(field, port);
-        field.setRemotePlayer(2);
-        isMultiplayer = true;
-        startTheGame();
-    }
-
-    public void connectTheGame(InetAddress ip, int port) throws Exception {
-        multiplayer = new MultiplayerFieldHandler(field, ip, port);
-        field.setRemotePlayer(1);
-        isMultiplayer = true;
-        startTheGame();
-    }
-
-    public void stopTheGame() {
-        if (!timer.isRunning()){
-            return;
-        }
-        if (isMultiplayer) {
-            multiplayer.getTimer().stop();
-            isMultiplayer = false;
-        }
-        AppTabs.frame.setCursor(Cursor.getDefaultCursor());
-        timer.stop();
+    public boolean isBadConnection() {
+        return multiplayer.isBadConnection();
     }
 
     @Override
@@ -201,6 +175,8 @@ public class PongPanel extends JPanel implements ActionListener {
         g2d.fill(field.getPl1());
         g2d.setColor(Color.BLUE);
         g2d.fill(field.getPl2());
+
+        this.requestFocusInWindow();
     }
 
     @Override
@@ -208,5 +184,45 @@ public class PongPanel extends JPanel implements ActionListener {
         prevFrameTime = field.moveBall(prevFrameTime);
 
         repaint();
+    }
+
+    public void startTheGame() {
+        if (timer.isRunning()) {
+            return;
+        }
+
+        this.grabFocus();
+        AppTabs.frame.setCursor( AppTabs.frame.getToolkit().createCustomCursor(
+                new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ),
+                new Point(),
+                null ) );
+        timer.start();
+        field.reset();
+    }
+
+    public void startTheMultiplayerGame(int port, JDialog dialog) throws Exception {
+        multiplayer = new MultiplayerFieldHandler(field, dialog, port);
+        field.setRemotePlayer(2);
+        isMultiplayer = true;
+        startTheGame();
+    }
+
+    public void connectTheGame(InetAddress ip, int port) throws Exception {
+        multiplayer = new MultiplayerFieldHandler(field, ip, port);
+        field.setRemotePlayer(1);
+        isMultiplayer = true;
+        startTheGame();
+    }
+
+    public void stopTheGame() {
+        if (!timer.isRunning()){
+            return;
+        }
+        if (isMultiplayer) {
+            multiplayer.close();
+            isMultiplayer = false;
+        }
+        timer.stop();
+        AppTabs.frame.setCursor(Cursor.getDefaultCursor());
     }
 }

@@ -3,9 +3,8 @@ package by.tshmofen.simplepong.presentation;
 import by.tshmofen.simplepong.domain.AppTabs;
 import by.tshmofen.simplepong.presentation.graphics.MenuPanel;
 import by.tshmofen.simplepong.presentation.graphics.PongPanel;
-import by.tshmofen.simplepong.presentation.graphics.net.ConnectNetPanel;
-import by.tshmofen.simplepong.presentation.graphics.net.StartNetPanel;
-
+import by.tshmofen.simplepong.presentation.graphics.ConnectNetPanel;
+import by.tshmofen.simplepong.presentation.graphics.StartNetPanel;
 import static by.tshmofen.simplepong.domain.Config.*;
 
 import javax.swing.*;

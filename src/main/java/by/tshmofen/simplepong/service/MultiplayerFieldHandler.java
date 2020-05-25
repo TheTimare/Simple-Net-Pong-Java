@@ -15,48 +15,73 @@ import java.net.Socket;
 
 public class MultiplayerFieldHandler implements ActionListener {
     private final PongField field;
-    private final Socket connection;
+
+    ServerSocket server;
+    private Socket connection;
+
     private final boolean isServer;
-    private boolean toThrowRemote;
+    private boolean toThrowBallRemote;
+    private boolean badConnection;
 
     ObjectOutputStream out;
     ObjectInputStream in;
 
     private final Timer timer;
 
-    public MultiplayerFieldHandler(PongField field, int port) throws Exception {
+    public MultiplayerFieldHandler(PongField field, JDialog dialog, int port) {
         this.field = field;
         isServer = true;
-        toThrowRemote = false;
-
-        ServerSocket server = new ServerSocket(port);
-        connection = server.accept();
-
+        toThrowBallRemote = false;
         timer = new Timer(20, this);
-        timer.start();
+        badConnection = true;
+        Runnable listening = () -> {
+            try {
+                server = new ServerSocket(port);
+                connection = server.accept();
 
-        out = new ObjectOutputStream(connection.getOutputStream());
-        in = new ObjectInputStream(connection.getInputStream());
+                out = new ObjectOutputStream(connection.getOutputStream());
+                in = new ObjectInputStream(connection.getInputStream());
+
+                dialog.dispose();
+                badConnection = false;
+                timer.start();
+            } catch (Exception ex) {
+                badConnection = true;
+            }
+        };
+        new Thread(listening).start();
     }
     public MultiplayerFieldHandler(PongField field, InetAddress ip, int port) throws Exception {
         this.field = field;
         isServer = false;
-        toThrowRemote = false;
+        toThrowBallRemote = false;
 
+        badConnection = true;
         connection = new Socket(ip, port);
-        timer = new Timer(20, this);
-        timer.start();
-
         out = new ObjectOutputStream(connection.getOutputStream());
         in = new ObjectInputStream(connection.getInputStream());
+
+        badConnection = false;
+        timer = new Timer(20, this);
+        timer.start();
     }
 
-    public Timer getTimer() {
-        return timer;
+    public boolean isBadConnection() {
+        return badConnection;
     }
-
     public void throwRemote(){
-        toThrowRemote = true;
+        toThrowBallRemote = true;
+    }
+    public void close() {
+        try {
+            if (server != null) {
+                server.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (IOException ignored) { }
+        badConnection = true;
     }
 
     @Override
@@ -74,15 +99,15 @@ public class MultiplayerFieldHandler implements ActionListener {
                 out.close();
                 in.close();
             } catch (IOException ignored) { }
+            badConnection = true;
         }
     }
 
     private void synchronizeWithServer() throws Exception {
         ClientResponseDTO response = new ClientResponseDTO(field.getPl2());
-        if (toThrowRemote) {
+        if (toThrowBallRemote) {
             response.toThrow = true;
-            toThrowRemote = false;
-            System.out.println("it works");
+            toThrowBallRemote = false;
         }
         out.writeObject(response);
         out.flush();

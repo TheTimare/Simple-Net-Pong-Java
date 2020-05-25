@@ -1,4 +1,4 @@
-package by.tshmofen.simplepong.presentation.graphics.net;
+package by.tshmofen.simplepong.presentation.graphics;
 
 import by.tshmofen.simplepong.domain.AppTabs;
 
@@ -59,13 +59,32 @@ public class StartNetPanel extends JPanel {
     private void startListening(ArrayList<JButton> buttons) {
         buttons.get(0).addActionListener(e -> {
             try {
+                JOptionPane jop = new JOptionPane();
+                jop.setMessageType(JOptionPane.INFORMATION_MESSAGE);
+                jop.setMessage("Server is waiting for connections.\n"
+                        + "Click OK to stop listening." );
+                JDialog dialog = jop.createDialog(AppTabs.frame, "Listening");
+
                 int port = Integer.parseInt(portField.getText());
-                AppTabs.pong.startTheMultiplayerGame(port);
+                AppTabs.pong.startTheMultiplayerGame(port, dialog);
+                dialog.setVisible(true);
+                if (AppTabs.pong.isBadConnection()){
+                    System.out.println("working");
+                    AppTabs.pong.stopTheGame();
+                    throw new Exception("exit");
+                }
+
                 AppTabs.frame.setContentPane(AppTabs.pong);
                 AppTabs.frame.setVisible(true);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(AppTabs.frame, "Incorrect port. Try again",
-                        "Error", JOptionPane.WARNING_MESSAGE);
+                if (ex.getMessage() != null && !ex.getMessage().equals("exit")) {
+                    JOptionPane.showMessageDialog(AppTabs.frame, "Incorrect port. Try again",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                }
+                else {
+                    this.requestFocusInWindow();
+                    AppTabs.frame.setCursor(Cursor.getDefaultCursor());
+                }
             }
         });
 

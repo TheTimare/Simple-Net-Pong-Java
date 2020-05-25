@@ -2,8 +2,8 @@ package by.tshmofen.simplepong.domain;
 
 import by.tshmofen.simplepong.presentation.graphics.MenuPanel;
 import by.tshmofen.simplepong.presentation.graphics.PongPanel;
-import by.tshmofen.simplepong.presentation.graphics.net.ConnectNetPanel;
-import by.tshmofen.simplepong.presentation.graphics.net.StartNetPanel;
+import by.tshmofen.simplepong.presentation.graphics.ConnectNetPanel;
+import by.tshmofen.simplepong.presentation.graphics.StartNetPanel;
 
 import javax.swing.*;
 

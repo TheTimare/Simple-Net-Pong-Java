@@ -1,4 +1,4 @@
-package by.tshmofen.simplepong.presentation.graphics.net;
+package by.tshmofen.simplepong.presentation.graphics;
 
 import by.tshmofen.simplepong.domain.AppTabs;
 
@@ -84,7 +84,7 @@ public class ConnectNetPanel extends JPanel {
                 AppTabs.frame.setVisible(true);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(AppTabs.frame, "Incorrect port or IP. Try again",
-                        "Error", JOptionPane.WARNING_MESSAGE);
+                        "Warning", JOptionPane.WARNING_MESSAGE);
             }
         });
 
