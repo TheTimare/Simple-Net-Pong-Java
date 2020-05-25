@@ -31,8 +31,8 @@ public class PongField {
         this.width = width;
         this.height = height;
 
-        ball = new Ball(width/2f, height/2f, 15);
-        speed = new Speed(START_BALL_SPEED, START_BALL_SPEED);
+        ball = new Ball(width/2f, height/2f, PONG_BALL_DIAMETER);
+        speed = new Speed(PONG_START_BALL_SPEED, PONG_START_BALL_SPEED);
 
         pl1 = new Rectangle();
         pl1.width = width / 80;
@@ -99,8 +99,8 @@ public class PongField {
         ball.x = width/2f;
         ball.y = height/2f;
 
-        speed.x = START_BALL_SPEED;
-        speed.y = START_BALL_SPEED;
+        speed.x = PONG_START_BALL_SPEED;
+        speed.y = PONG_START_BALL_SPEED;
 
         pause();
     }
@@ -176,7 +176,7 @@ public class PongField {
         if (isNewBallIntersectPlayers(newX, newY)) {
             newX -= relativeSpeedX;
             speed.x = -speed.x;
-            speed.x = (speed.x < 0) ? speed.x - SPEED_INCREMENT  : speed.x + SPEED_INCREMENT;
+            speed.x = (speed.x < 0) ? speed.x - PONG_SPEED_INCREMENT : speed.x + PONG_SPEED_INCREMENT;
         }
 
         ball.x = newX;
@@ -215,8 +215,8 @@ public class PongField {
     public void throwBall(Rectangle pl) {
         putBallToPlayer(pl);
 
-        speed.x = (pl.x < width / 2) ? START_BALL_SPEED : -START_BALL_SPEED;
-        speed.y = new Random().nextInt() % (START_BALL_SPEED) - START_BALL_SPEED / 2;
+        speed.x = (pl.x < width / 2) ? PONG_START_BALL_SPEED : -PONG_START_BALL_SPEED;
+        speed.y = new Random().nextInt() % (PONG_START_BALL_SPEED) - PONG_START_BALL_SPEED / 2;
         speed.y = (speed.y == 0) ? speed.y + 1 : speed.y;
 
         unpause();

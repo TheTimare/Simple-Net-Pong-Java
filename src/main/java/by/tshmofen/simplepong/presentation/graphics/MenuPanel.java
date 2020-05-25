@@ -1,6 +1,7 @@
 package by.tshmofen.simplepong.presentation.graphics;
 
 import by.tshmofen.simplepong.domain.AppTabs;
+import static by.tshmofen.simplepong.domain.Config.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +24,6 @@ public class MenuPanel extends JPanel {
         buttons.add(new JButton("Exit"));
         setDesign(buttons);
 
-        this.setBackground(Color.DARK_GRAY);
         for (JButton button: buttons) {
             this.add(button);
         }
@@ -34,14 +34,14 @@ public class MenuPanel extends JPanel {
     }
 
     private void setDesign(ArrayList<JButton> buttons) {
-        int menuWidth = 300;
+        this.setBackground(MENU_BACKGROUND_COLOR);
         for (int i = 0; i < buttons.size(); i++){
             JButton button = buttons.get(i);
-            button.setBounds(width / 2 - menuWidth/2
-                    , height * (i + 2) / 12, menuWidth, height / 12 - 5);
-            button.setBackground(Color.LIGHT_GRAY);
-            button.setForeground(Color.DARK_GRAY);
-            button.setFont(new Font("Courier", Font.BOLD, 22));
+            button.setBounds(width / 2 - MENU_WIDTH/2
+                    , height * (i + 2) / 12, MENU_WIDTH, height / 12 - 5);
+            button.setBackground(MENU_BUTTON_BACKGROUND_COLOR);
+            button.setForeground(MENU_BUTTON_FOREGROUND_COLOR);
+            button.setFont(new Font(APP_FONT, Font.BOLD, 22));
         }
     }
 

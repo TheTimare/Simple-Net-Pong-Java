@@ -44,6 +44,14 @@ public class PongPanel extends JPanel implements ActionListener {
                 if (!timer.isRunning()) {
                     return;
                 }
+                if (isMultiplayer && multiplayer.isBadConnection()){
+                    stopTheGame();
+                    JOptionPane.showMessageDialog(AppTabs.frame
+                            , "Bad connection. Returning to the menu.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    AppTabs.frame.setContentPane(AppTabs.menu);
+                    AppTabs.frame.setVisible(true);
+                }
                 if (field.getRemotePlayer() == 1){
                     movePlayer(2);
                 }
@@ -93,6 +101,12 @@ public class PongPanel extends JPanel implements ActionListener {
 
             @Override
             public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    stopTheGame();
+                    AppTabs.frame.setContentPane(AppTabs.menu);
+                    AppTabs.frame.setVisible(true);
+                    return;
+                }
                 if (!isMultiplayer) {
                     handleKeys(e);
                 }
@@ -114,10 +128,6 @@ public class PongPanel extends JPanel implements ActionListener {
                             pl2.y += KEY_SENSITIVITY;
                         }
                         break;
-                    case KeyEvent.VK_ESCAPE:
-                        stopTheGame();
-                        AppTabs.frame.setContentPane(AppTabs.menu);
-                        AppTabs.frame.setVisible(true);
                 }
                 if (field.getLastLoser() == 2 && field.isOnPause()){
                     field.putBallToPlayer(pl2);
@@ -127,6 +137,52 @@ public class PongPanel extends JPanel implements ActionListener {
                 }
             }
         });
+    }
+
+    public boolean isBadConnection() {
+        return multiplayer.isBadConnection();
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        // turn on antialiasing
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.addRenderingHints(
+               new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        );
+
+        // paint background
+        g2d.setColor(PONG_LEFT_PART_COLOR);
+        g2d.fillRect(0, 0, width, height);
+
+        // right part of field
+        g2d.setColor(PONG_RIGHT_PART_COLOR);
+        g2d.fillRect(width/2, 0, width, height);
+
+        g2d.setFont(new Font(APP_FONT, Font.BOLD, 75));
+        g2d.drawString(String.valueOf(field.getPl2Points()), width/5, height/2);
+        g2d.setColor(PONG_LEFT_PART_COLOR);
+        g2d.drawString(String.valueOf(field.getPl1Points()), width*7/10, height/2);
+
+        // paint ball
+        g2d.setColor(PONG_BALL_COLOR);
+        Ball ball = field.getBall();
+        g2d.fillOval((int)ball.x, (int)ball.y, ball.diameter, ball.diameter);
+
+        //paint platform
+        g2d.setColor(PONG_PLAYER1_COLOR);
+        g2d.fill(field.getPl1());
+        g2d.setColor(PONG_PLAYER2_COLOR);
+        g2d.fill(field.getPl2());
+
+        this.requestFocusInWindow();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        prevFrameTime = field.moveBall(prevFrameTime);
+        repaint();
     }
 
     public void startTheGame() {
@@ -143,8 +199,8 @@ public class PongPanel extends JPanel implements ActionListener {
         field.reset();
     }
 
-    public void startTheMultiplayerGame(int port) throws Exception {
-        multiplayer = new MultiplayerFieldHandler(field, port);
+    public void startTheMultiplayerGame(int port, JDialog dialog) {
+        multiplayer = new MultiplayerFieldHandler(field, dialog, port);
         field.setRemotePlayer(2);
         isMultiplayer = true;
         startTheGame();
@@ -162,51 +218,10 @@ public class PongPanel extends JPanel implements ActionListener {
             return;
         }
         if (isMultiplayer) {
-            multiplayer.getTimer().stop();
+            multiplayer.close();
             isMultiplayer = false;
         }
-        AppTabs.frame.setCursor(Cursor.getDefaultCursor());
         timer.stop();
-    }
-
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        // turn on antialiasing
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.addRenderingHints(
-               new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-        );
-
-        // paint background
-        g2d.setColor(BACKGROUND_COLOR);
-        g2d.fillRect(0, 0, width, height);
-
-        // paint info and layout
-        g2d.setColor(Color.decode("#F7F7F7"));
-        g2d.fillRect(width/2, 0, width, height);
-
-        g2d.setFont(new Font("Courier", Font.BOLD, 75));
-        g2d.drawString(String.valueOf(field.getPl2Points()), width/5, height/2);
-        g2d.setColor(BACKGROUND_COLOR);
-        g2d.drawString(String.valueOf(field.getPl1Points()), width*7/10, height/2);
-
-        // paint ball
-        g2d.setColor(Color.ORANGE);
-        Ball ball = field.getBall();
-        g2d.fillOval((int)ball.x, (int)ball.y, ball.diameter, ball.diameter);
-
-        //paint platform
-        g2d.setColor(Color.RED);
-        g2d.fill(field.getPl1());
-        g2d.setColor(Color.BLUE);
-        g2d.fill(field.getPl2());
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        prevFrameTime = field.moveBall(prevFrameTime);
-
-        repaint();
+        AppTabs.frame.setCursor(Cursor.getDefaultCursor());
     }
 }

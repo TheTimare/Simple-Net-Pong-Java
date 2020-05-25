@@ -1,4 +1,4 @@
-package by.tshmofen.simplepong.presentation.graphics.net;
+package by.tshmofen.simplepong.presentation.graphics;
 
 import by.tshmofen.simplepong.domain.AppTabs;
 
@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.InetAddress;
 import java.util.ArrayList;
+
+import static by.tshmofen.simplepong.domain.Config.*;
 
 public class ConnectNetPanel extends JPanel {
     private final int width;
@@ -18,35 +20,33 @@ public class ConnectNetPanel extends JPanel {
         this.grabFocus();
         width = AppTabs.frame.getContentPane().getWidth();
         height = AppTabs.frame.getContentPane().getHeight();
-        int menuWidth = 300;
 
         ArrayList<JButton> buttons = new ArrayList<>();
         buttons.add(new JButton("Connect The Game"));
         buttons.add(new JButton("Return"));
-        setDesign(buttons, menuWidth);
+        setDesign(buttons);
 
         JLabel portLabel = new JLabel("Port");
         portField = new JTextField("8080");
 
-        portLabel.setBounds(width / 2 - menuWidth/2, height * 3 / 12,
-                menuWidth / 5 - 5, height / 12 - 5);
-        portLabel.setFont(new Font("Courier", Font.BOLD, 22));
-        portLabel.setForeground(Color.LIGHT_GRAY);
-        portField.setBounds(width / 2 - menuWidth/2 + menuWidth / 5, height * 3 / 12,
-                menuWidth * 4 / 5 - 5, height / 12 - 5);
-        portField.setFont(new Font("Courier", Font.BOLD, 22));
+        portLabel.setBounds(width / 2 - MENU_WIDTH/2, height * 3 / 12,
+                MENU_WIDTH / 5 - 5, height / 12 - 5);
+        portLabel.setFont(new Font(APP_FONT, Font.BOLD, 22));
+        portLabel.setForeground(MENU_BUTTON_BACKGROUND_COLOR);
+        portField.setBounds(width / 2 - MENU_WIDTH/2 + MENU_WIDTH / 5, height * 3 / 12,
+                MENU_WIDTH * 4 / 5 - 5, height / 12 - 5);
+        portField.setFont(new Font(APP_FONT, Font.BOLD, 22));
 
         JLabel ipLabel = new JLabel("IP");
         ipField = new JTextField();
-        ipLabel.setBounds(width / 2 - menuWidth/2, height * 4 / 12,
-                menuWidth / 5 - 5, height / 12 - 5);
-        ipLabel.setFont(new Font("Courier", Font.BOLD, 22));
-        ipLabel.setForeground(Color.LIGHT_GRAY);
-        ipField.setBounds(width / 2 - menuWidth/2 + menuWidth / 5, height * 4 / 12,
-                menuWidth * 4 / 5 - 5, height / 12 - 5);
-        ipField.setFont(new Font("Courier", Font.BOLD, 22));
+        ipLabel.setBounds(width / 2 - MENU_WIDTH/2, height * 4 / 12,
+                MENU_WIDTH / 5 - 5, height / 12 - 5);
+        ipLabel.setFont(new Font(APP_FONT, Font.BOLD, 22));
+        ipLabel.setForeground(MENU_BUTTON_BACKGROUND_COLOR);
+        ipField.setBounds(width / 2 - MENU_WIDTH/2 + MENU_WIDTH/5, height * 4 / 12,
+                MENU_WIDTH*4/5 - 5, height / 12 - 5);
+        ipField.setFont(new Font(APP_FONT, Font.BOLD, 22));
 
-        this.setBackground(Color.DARK_GRAY);
         for (JButton button: buttons) {
             this.add(button);
         }
@@ -60,14 +60,15 @@ public class ConnectNetPanel extends JPanel {
         startListening(buttons);
     }
 
-    private void setDesign(ArrayList<JButton> buttons, int menuWidth) {
+    private void setDesign(ArrayList<JButton> buttons) {
+        this.setBackground(MENU_BACKGROUND_COLOR);
         for (int i = 0; i < buttons.size(); i++){
             JButton button = buttons.get(i);
-            button.setBounds(width / 2 - menuWidth/2
-                    , height * (3*i + 2) / 12, menuWidth, height / 12 - 5);
-            button.setBackground(Color.LIGHT_GRAY);
-            button.setForeground(Color.DARK_GRAY);
-            button.setFont(new Font("Courier", Font.BOLD, 22));
+            button.setBounds(width / 2 - MENU_WIDTH/2
+                    , height * (3*i + 2) / 12, MENU_WIDTH, height / 12 - 5);
+            button.setBackground(MENU_BUTTON_BACKGROUND_COLOR);
+            button.setForeground(MENU_BUTTON_FOREGROUND_COLOR);
+            button.setFont(new Font(APP_FONT, Font.BOLD, 22));
         }
     }
 
@@ -84,7 +85,7 @@ public class ConnectNetPanel extends JPanel {
                 AppTabs.frame.setVisible(true);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(AppTabs.frame, "Incorrect port or IP. Try again",
-                        "Error", JOptionPane.WARNING_MESSAGE);
+                        "Warning", JOptionPane.WARNING_MESSAGE);
             }
         });
 
