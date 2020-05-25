@@ -19,7 +19,7 @@ public class StartNetPanel extends JPanel {
         int menuWidth = 300;
 
         ArrayList<JButton> buttons = new ArrayList<>();
-        buttons.add(new JButton("Start Local Game"));
+        buttons.add(new JButton("Start Multiplayer Server"));
         buttons.add(new JButton("Return"));
         setDesign(buttons, menuWidth);
 
@@ -60,10 +60,10 @@ public class StartNetPanel extends JPanel {
         buttons.get(0).addActionListener(e -> {
             try {
                 int port = Integer.parseInt(portField.getText());
+                AppTabs.pong.startTheMultiplayerGame(port);
                 AppTabs.frame.setContentPane(AppTabs.pong);
                 AppTabs.frame.setVisible(true);
-                AppTabs.pong.startTheGame();
-            } catch (NumberFormatException ex) {
+            } catch (Exception ex) {
                 JOptionPane.showMessageDialog(AppTabs.frame, "Incorrect port. Try again",
                         "Error", JOptionPane.WARNING_MESSAGE);
             }

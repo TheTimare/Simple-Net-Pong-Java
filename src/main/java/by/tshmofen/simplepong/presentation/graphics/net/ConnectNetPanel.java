@@ -21,7 +21,7 @@ public class ConnectNetPanel extends JPanel {
         int menuWidth = 300;
 
         ArrayList<JButton> buttons = new ArrayList<>();
-        buttons.add(new JButton("Start Local Game"));
+        buttons.add(new JButton("Connect The Game"));
         buttons.add(new JButton("Return"));
         setDesign(buttons, menuWidth);
 
@@ -79,9 +79,9 @@ public class ConnectNetPanel extends JPanel {
                     throw new Exception();
                 }
                 InetAddress ip = InetAddress.getByName(ipField.getText());
+                AppTabs.pong.connectTheGame(ip, port);
                 AppTabs.frame.setContentPane(AppTabs.pong);
                 AppTabs.frame.setVisible(true);
-                AppTabs.pong.startTheGame();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(AppTabs.frame, "Incorrect port or IP. Try again",
                         "Error", JOptionPane.WARNING_MESSAGE);
