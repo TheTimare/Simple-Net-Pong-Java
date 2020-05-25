@@ -2,6 +2,7 @@ package by.tshmofen.simplepong.presentation.graphics;
 
 import by.tshmofen.simplepong.domain.AppTabs;
 import by.tshmofen.simplepong.domain.geometry.Ball;
+import by.tshmofen.simplepong.service.MultiplayerFieldHandler;
 import by.tshmofen.simplepong.service.PongField;
 import static by.tshmofen.simplepong.domain.Config.*;
 
@@ -9,28 +10,30 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.net.InetAddress;
 
 public class PongPanel extends JPanel implements ActionListener {
     private final int width;
     private final int height;
-
-    private final PongField field;
-
     private long prevFrameTime;
 
+    private final PongField field;
     private final Timer timer;
+
+    private MultiplayerFieldHandler multiplayer;
+    private boolean isMultiplayer;
 
     public PongPanel() {
         width = AppTabs.frame.getContentPane().getWidth();
         height = AppTabs.frame.getContentPane().getHeight();
 
         field = new PongField(width, height);
-        // turn off the cursor
 
         prevFrameTime = System.currentTimeMillis();
         setDoubleBuffered(true);
 
         timer = new Timer(MS_PER_FRAME, this);
+        isMultiplayer = false;
         addListeners();
     }
 
@@ -38,41 +41,61 @@ public class PongPanel extends JPanel implements ActionListener {
         this.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                Point mousePos = PongPanel.super.getMousePosition();
-                Rectangle pl1 = field.getPl1();
-                int shift = pl1.height / 2;
-                if (mousePos != null && mousePos.y + shift < height && mousePos.y - shift > 0 ) {
-                    pl1.y = mousePos.y - pl1.height / 2;
+                if (!timer.isRunning()) {
+                    return;
                 }
-                if (field.getLastLoser() == 1 && field.isOnPause()) {
-                    field.putBallToPlayer(pl1);
+                if (field.getRemotePlayer() == 1){
+                    movePlayer(2);
+                }
+                else {
+                    movePlayer(1);
+                }
+            }
+
+            private void movePlayer(int player) {
+                Point mousePos = PongPanel.super.getMousePosition();
+                Rectangle pl = (player == 1) ? field.getPl1() : field.getPl2();
+                int shift = pl.height / 2;
+                if (mousePos != null && mousePos.y + shift < height && mousePos.y - shift > 0 ) {
+                    pl.y = mousePos.y - pl.height / 2;
                 }
             }
         });
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (field.getLastLoser() == 1 && field.isOnPause()) {
-                    field.throwBall(field.getPl1());
-                }
+                mousePressed(e);
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if (field.getLastLoser() == 1 && field.isOnPause()) {
-                    field.throwBall(field.getPl1());
+                if (!field.isOnPause()){
+                    return;
                 }
+                if (field.getRemotePlayer() == 1 && field.getLastLoser() == 2) {
+                    multiplayer.throwRemote();
+                }
+                if (field.getRemotePlayer() != 1 && field.getLastLoser() == 1) {
+                    throwBall(1);
+                }
+            }
+
+            public void throwBall(int player) {
+                Rectangle pl = (player == 1) ? field.getPl1() : field.getPl2();
+                field.throwBall(pl);
             }
         });
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                handleKeys(e);
+                keyPressed(e);
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                handleKeys(e);
+                if (!isMultiplayer) {
+                    handleKeys(e);
+                }
             }
 
             void handleKeys(KeyEvent e) {
@@ -120,11 +143,28 @@ public class PongPanel extends JPanel implements ActionListener {
         field.reset();
     }
 
+    public void startTheMultiplayerGame(int port) throws Exception {
+        multiplayer = new MultiplayerFieldHandler(field, port);
+        field.setRemotePlayer(2);
+        isMultiplayer = true;
+        startTheGame();
+    }
+
+    public void connectTheGame(InetAddress ip, int port) throws Exception {
+        multiplayer = new MultiplayerFieldHandler(field, ip, port);
+        field.setRemotePlayer(1);
+        isMultiplayer = true;
+        startTheGame();
+    }
+
     public void stopTheGame() {
         if (!timer.isRunning()){
             return;
         }
-
+        if (isMultiplayer) {
+            multiplayer.getTimer().stop();
+            isMultiplayer = false;
+        }
         AppTabs.frame.setCursor(Cursor.getDefaultCursor());
         timer.stop();
     }

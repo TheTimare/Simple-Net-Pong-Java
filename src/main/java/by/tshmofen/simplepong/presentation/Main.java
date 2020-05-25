@@ -1,8 +1,11 @@
-package by.tshmofen.simplepong.presentation.window;
+package by.tshmofen.simplepong.presentation;
 
 import by.tshmofen.simplepong.domain.AppTabs;
 import by.tshmofen.simplepong.presentation.graphics.MenuPanel;
 import by.tshmofen.simplepong.presentation.graphics.PongPanel;
+import by.tshmofen.simplepong.presentation.graphics.net.ConnectNetPanel;
+import by.tshmofen.simplepong.presentation.graphics.net.StartNetPanel;
+
 import static by.tshmofen.simplepong.domain.Config.*;
 
 import javax.swing.*;
@@ -30,6 +33,8 @@ public class Main {
         AppTabs.frame = frame;
         AppTabs.pong = new PongPanel();
         AppTabs.menu = new MenuPanel();
+        AppTabs.startNetMenu = new StartNetPanel();
+        AppTabs.connectNetPanel = new ConnectNetPanel();
         frame.setContentPane(AppTabs.menu);
     }
 }

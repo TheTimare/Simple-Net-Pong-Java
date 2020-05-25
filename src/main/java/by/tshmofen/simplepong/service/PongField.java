@@ -1,5 +1,7 @@
 package by.tshmofen.simplepong.service;
 
+import by.tshmofen.simplepong.domain.dto.ClientResponseDTO;
+import by.tshmofen.simplepong.domain.dto.PongFieldDTO;
 import by.tshmofen.simplepong.domain.geometry.Ball;
 import by.tshmofen.simplepong.domain.geometry.Speed;
 import static by.tshmofen.simplepong.domain.Config.*;
@@ -23,6 +25,7 @@ public class PongField {
 
     private boolean onPause;
     private int lastLoser;
+    private int remotePlayer;
 
     public PongField(int width, int height) {
         this.width = width;
@@ -39,15 +42,17 @@ public class PongField {
         pl2.width = width / 80;
         pl2.height = height / 10;
 
+        remotePlayer = 0;
         reset();
-
         onPause = true;
     }
 
     public Ball getBall() {
         return ball;
     }
-
+    public Speed getSpeed() {
+        return speed;
+    }
     public Rectangle getPl1() {
         return pl1;
     }
@@ -64,6 +69,9 @@ public class PongField {
     public int getLastLoser() {
         return lastLoser;
     }
+    public int getRemotePlayer() {
+        return remotePlayer;
+    }
 
     public boolean isOnPause(){
         return onPause;
@@ -74,6 +82,10 @@ public class PongField {
     public void unpause() {
         onPause = false;
     }
+    public void setRemotePlayer(int remotePlayer) {
+        this.remotePlayer = remotePlayer;
+    }
+
     public void reset() {
         pl1.x = width * 19 / 20;
         pl1.y = height / 2 - pl1.height/2;
@@ -93,12 +105,45 @@ public class PongField {
         pause();
     }
 
+    public void update(PongFieldDTO data) {
+        ball.x = data.ballX;
+        ball.y = data.ballY;
+
+        speed.x = data.speedX;
+        speed.y = data.speedY;
+
+        if (remotePlayer == 1) {
+            pl1.x = data.remotePlayerX;
+            pl1.y = data.remotePlayerY;
+        }
+        else {
+            pl2.x = data.remotePlayerX;
+            pl2.y = data.remotePlayerY;
+        }
+
+        pl1Points = data.pl1Points;
+        pl2Points = data.pl2Points;
+
+        onPause = data.onPause;
+        lastLoser = data.lastLoser;
+    }
+    public void updateRemotePlayer(ClientResponseDTO response) {
+        Rectangle pl = (remotePlayer == 1) ? pl1 : pl2;
+        pl.x = response.x;
+        pl.y = response.y;
+        if (response.toThrow){
+            throwBall(pl);
+        }
+    }
+
     // return time of the last frame
     public long moveBall(long prevFrameTime) {
         float deltaFrame = (System.currentTimeMillis() - prevFrameTime) / (float)TARGET_MS ;
         prevFrameTime = System.currentTimeMillis();
 
         if (onPause) { // wait before player throw the ball
+            Rectangle pl = (lastLoser == 1) ? pl1 : pl2;
+            putBallToPlayer(pl);
             return prevFrameTime;
         }
 

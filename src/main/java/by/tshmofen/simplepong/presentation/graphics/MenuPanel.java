@@ -52,6 +52,16 @@ public class MenuPanel extends JPanel {
             AppTabs.pong.startTheGame();
         });
 
+        buttons.get(1).addActionListener(e -> {
+            AppTabs.frame.setContentPane(AppTabs.startNetMenu);
+            AppTabs.frame.setVisible(true);
+        });
+
+        buttons.get(2).addActionListener(e -> {
+            AppTabs.frame.setContentPane(AppTabs.connectNetPanel);
+            AppTabs.frame.setVisible(true);
+        });
+
         buttons.get(3).addActionListener(e ->
                 AppTabs.frame.dispatchEvent(new WindowEvent(AppTabs.frame, WindowEvent.WINDOW_CLOSING))
         );
