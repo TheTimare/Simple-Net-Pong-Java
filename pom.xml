@@ -26,7 +26,7 @@
                         <configuration>
                             <classifier>spring-boot</classifier>
                             <mainClass>
-                                by.tshmofen.simplepong.presentation.window.Main
+                                by.tshmofen.simplepong.presentation.Main
                             </mainClass>
                         </configuration>
                     </execution>
